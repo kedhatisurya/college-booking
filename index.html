@@ -178,8 +178,8 @@
     }
 
     .btn-approve { background: #28a745; }
-    .btn-reject { background: #dc3545; }
-    .btn-delete { background: #dc3545; }
+    .btn-reject  { background: #dc3545; }
+    .btn-delete  { background: #dc3545; }
 
     #msg {
       margin-top: 10px;
@@ -248,8 +248,92 @@
 <div class="dashboard">
   <h3 class="section-title">Available Resources</h3>
 
+  <!-- Admin Filters (hidden for faculty) -->
+  <div id="adminFilters" class="filter-bar" style="display:none">
+    <select id="filterResource" onchange="filterTable()">
+      <option value="">All Resources</option>
+      <option value="Computer Lab 1">Computer Lab 1</option>
+      <option value="Computer Lab 2">Computer Lab 2</option>
+      <option value="Computer Lab 3">Computer Lab 3</option>
+      <option value="Seminar Hall">Seminar Hall</option>
+      <option value="Conference Room">Conference Room</option>
+      <option value="Auditorium">Auditorium</option>
+      <option value="Smart Classroom">Smart Classroom</option>
+      <option value="Projector Room">Projector Room</option>
+    </select>
+    <select id="filterStatus" onchange="filterTable()">
+      <option value="">All Statuses</option>
+      <option value="Pending">Pending</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+    <select id="filterConflict" onchange="filterTable()">
+      <option value="">All Bookings</option>
+      <option value="conflict">Conflicts Only</option>
+    </select>
+  </div>
+
+  <!-- Conflict Legend (hidden for faculty) -->
+  <div id="conflictLegend" class="legend" style="display:none">
+    <div class="legend-item">
+      <div class="legend-box" style="background:#fff3cd;border:2px solid #ff9800"></div>
+      <span>Conflicting Slot</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-box" style="background:#ff9800"></div>
+      <span>⚠ Conflict Badge</span>
+    </div>
+  </div>
+
   <div class="cards">
-    <!-- cards unchanged -->
+    <div class="card lab1">
+      <h4>🖥️ Computer Lab 1</h4>
+      <p>Capacity: 40 seats</p>
+      <p>Projector & AC</p>
+      <button onclick="openBooking('Computer Lab 1')">Book Now</button>
+    </div>
+    <div class="card lab2">
+      <h4>🖥️ Computer Lab 2</h4>
+      <p>Capacity: 35 seats</p>
+      <p>High-speed Internet</p>
+      <button onclick="openBooking('Computer Lab 2')">Book Now</button>
+    </div>
+    <div class="card lab3">
+      <h4>🖥️ Computer Lab 3</h4>
+      <p>Capacity: 30 seats</p>
+      <p>Linux Systems</p>
+      <button onclick="openBooking('Computer Lab 3')">Book Now</button>
+    </div>
+    <div class="card hall">
+      <h4>🏛️ Seminar Hall</h4>
+      <p>Capacity: 100 seats</p>
+      <p>Mic & Projector</p>
+      <button onclick="openBooking('Seminar Hall')">Book Now</button>
+    </div>
+    <div class="card seminar">
+      <h4>📋 Conference Room</h4>
+      <p>Capacity: 20 seats</p>
+      <p>Whiteboard & TV</p>
+      <button onclick="openBooking('Conference Room')">Book Now</button>
+    </div>
+    <div class="card projector">
+      <h4>📽️ Projector Room</h4>
+      <p>Portable Projectors</p>
+      <p>Available: 5 units</p>
+      <button onclick="openBooking('Projector Room')">Book Now</button>
+    </div>
+    <div class="card auditorium">
+      <h4>🎭 Auditorium</h4>
+      <p>Capacity: 500 seats</p>
+      <p>Stage & Sound System</p>
+      <button onclick="openBooking('Auditorium')">Book Now</button>
+    </div>
+    <div class="card conference">
+      <h4>📚 Smart Classroom</h4>
+      <p>Capacity: 60 seats</p>
+      <p>Smart Board & AC</p>
+      <button onclick="openBooking('Smart Classroom')">Book Now</button>
+    </div>
   </div>
 
   <div class="booking-panel" id="bookingPanel">
