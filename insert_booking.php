@@ -3,10 +3,7 @@ include 'db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!$data) {
-    echo json_encode(["message" => "No data received"]);
-    exit;
-}
+if (!$data) { echo json_encode(["message" => "No data received"]); exit; }
 
 $resource = $data['resource'] ?? '';
 $date     = $data['date']     ?? '';
@@ -19,10 +16,8 @@ if (!$resource || !$date || !$time || !$user) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO bookings (resource, date, time, status, user_email) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("sssss", $resource, $date, $time, $status, $user);
-
-if ($stmt->execute()) {
+$stmt = $pdo->prepare("INSERT INTO bookings (resource, date, time, status, user_email) VALUES (?, ?, ?, ?, ?)");
+if ($stmt->execute([$resource, $date, $time, $status, $user])) {
     echo json_encode(["message" => "Booking stored successfully"]);
 } else {
     echo json_encode(["message" => "Error storing booking"]);

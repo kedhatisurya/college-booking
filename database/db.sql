@@ -1,7 +1,4 @@
--- ============================================
--- Smart Resource Management System - DB Schema
--- Run this in Railway MySQL to set up fresh DB
--- ============================================
+
 
 CREATE DATABASE IF NOT EXISTS college_booking;
 USE college_booking;

@@ -1,12 +1,5 @@
 <?php
 include 'db.php';
-
-$result   = $conn->query("SELECT * FROM bookings ORDER BY id DESC");
-$bookings = [];
-
-while ($row = $result->fetch_assoc()) {
-    $bookings[] = $row;
-}
-
-echo json_encode($bookings);
+$stmt = $pdo->query("SELECT * FROM bookings ORDER BY id DESC");
+echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 ?>

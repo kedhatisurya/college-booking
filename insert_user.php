@@ -17,24 +17,17 @@ if (!$email || !$password || !$role) {
     exit;
 }
 
-// Check if user already exists
-$check = $conn->prepare("SELECT id FROM users WHERE email = ?");
-$check->bind_param("s", $email);
-$check->execute();
-$check->store_result();
-
-if ($check->num_rows > 0) {
+$check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+$check->execute([$email]);
+if ($check->fetch()) {
     echo json_encode(["message" => "Email already registered"]);
     exit;
 }
 
-// Hash password before storing
 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+$stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
 
-$stmt = $conn->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
-$stmt->bind_param("sss", $email, $hashedPassword, $role);
-
-if ($stmt->execute()) {
+if ($stmt->execute([$email, $hashedPassword, $role])) {
     echo json_encode(["message" => "User stored"]);
 } else {
     echo json_encode(["message" => "Error storing user"]);

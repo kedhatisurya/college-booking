@@ -6,16 +6,21 @@ header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit(0); }
 
-$host     = getenv('DB_HOST')     ?: 'localhost';
-$port     = getenv('DB_PORT')     ?: '3306';
+$host     = getenv('DB_HOST')     ?: 'gondola.proxy.rlwy.net';
+$port     = getenv('DB_PORT')     ?: '52125';
 $user     = getenv('DB_USER')     ?: 'root';
-$password = getenv('DB_PASSWORD') ?: '';
+$password = getenv('DB_PASSWORD') ?: 'DnqjuDIxZeSABtfOtoPIzkpmruqpnyNP';
 $database = getenv('DB_NAME')     ?: 'college_booking';
 
-$conn = new mysqli($host, $user, $password, $database, (int)$port);
-
-if ($conn->connect_error) {
+try {
+    $pdo = new PDO(
+        "mysql:host=$host;port=$port;dbname=$database;charset=utf8",
+        $user,
+        $password,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+} catch (PDOException $e) {
     http_response_code(500);
-    die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
+    die(json_encode(["error" => "Connection failed: " . $e->getMessage()]));
 }
 ?>

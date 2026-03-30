@@ -16,23 +16,14 @@ if (!$email || !$password) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->execute([$email]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-
-    // Verify hashed password
-    if (password_verify($password, $user['password'])) {
-        // Don't send password back to frontend
-        unset($user['password']);
-        echo json_encode(["success" => true, "user" => $user]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Invalid credentials"]);
-    }
+if ($user && password_verify($password, $user['password'])) {
+    unset($user['password']);
+    echo json_encode(["success" => true, "user" => $user]);
 } else {
-    echo json_encode(["success" => false, "message" => "User not found"]);
+    echo json_encode(["success" => false, "message" => "Invalid credentials"]);
 }
 ?>
