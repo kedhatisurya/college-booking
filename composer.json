@@ -1,0 +1,7 @@
+{
+  "name": "college/booking",
+  "description": "Smart Resource Management System",
+  "require": {
+    "php": ">=8.1"
+  }
+}
