@@ -4,16 +4,15 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit(0); }
 
 $host     = getenv('DB_HOST')     ?: 'localhost';
+$port     = getenv('DB_PORT')     ?: '3306';
 $user     = getenv('DB_USER')     ?: 'root';
 $password = getenv('DB_PASSWORD') ?: '';
 $database = getenv('DB_NAME')     ?: 'college_booking';
 
-$conn = new mysqli($host, $user, $password, $database);
+$conn = new mysqli($host, $user, $password, $database, (int)$port);
 
 if ($conn->connect_error) {
     http_response_code(500);
