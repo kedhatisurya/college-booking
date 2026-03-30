@@ -1,0 +1,27 @@
+-- ============================================
+-- Smart Resource Management System - DB Schema
+-- Run this in Railway MySQL to set up fresh DB
+-- ============================================
+
+CREATE DATABASE IF NOT EXISTS college_booking;
+USE college_booking;
+
+-- USERS TABLE
+CREATE TABLE IF NOT EXISTS users (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  email      VARCHAR(255) NOT NULL UNIQUE,
+  password   VARCHAR(255) NOT NULL,
+  role       VARCHAR(50)  NOT NULL DEFAULT 'faculty',
+  created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BOOKINGS TABLE
+CREATE TABLE IF NOT EXISTS bookings (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  resource   VARCHAR(100) NOT NULL,
+  date       DATE         NOT NULL,
+  time       VARCHAR(50)  NOT NULL,
+  status     VARCHAR(50)  NOT NULL DEFAULT 'Pending',
+  user_email VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>College Resource Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/home.css">
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f4f7fb; }
+    .topbar { background: linear-gradient(90deg, #1e3c72, #2a5298); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar button { background: #ff4c4c; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+    .dashboard { padding: 30px; }
+    .section-title { margin: 20px 0; color: #333; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .card { padding: 25px; border-radius: 15px; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .card h4 { margin: 0; }
+    .card button { margin-top: 15px; padding: 10px; width: 100%; border: none; border-radius: 8px; background: rgba(255,255,255,0.9); cursor: pointer; font-weight: bold; }
+    .lab       { background: linear-gradient(135deg, #00b4db, #0083b0); }
+    .hall      { background: linear-gradient(135deg, #ff9966, #ff5e62); }
+    .projector { background: linear-gradient(135deg, #56ab2f, #a8e063); }
+    .booking-panel { margin-top: 30px; background: white; padding: 25px; border-radius: 12px; display: none; max-width: 400px; }
+    .booking-panel input, .booking-panel select, .booking-panel button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+    .booking-panel button { background: #2a5298; color: white; border: none; cursor: pointer; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 12px; text-align: center; border-bottom: 1px solid #ddd; }
+    th { background: #2a5298; color: white; }
+    #msg { margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <h2>College Resource Booking</h2>
+  <span id="userInfo"></span>
+  <button onclick="logout()">Logout</button>
+</header>
+
+<div class="dashboard">
+  <h3 class="section-title">Available Resources</h3>
+
+  <div class="cards">
+    <div class="card lab">
+      <h4>Lab 1</h4>
+      <p>Computer Laboratory</p>
+      <button onclick="openBooking('Lab 1')">Book Slot</button>
+    </div>
+    <div class="card hall">
+      <h4>Seminar Hall</h4>
+      <p>Events &amp; Presentations</p>
+      <button onclick="openBooking('Seminar Hall')">Book Slot</button>
+    </div>
+    <div class="card projector">
+      <h4>Projector</h4>
+      <p>Classroom Teaching</p>
+      <button onclick="openBooking('Projector')">Book Slot</button>
+    </div>
+  </div>
+
+  <div class="booking-panel" id="bookingPanel">
+    <h3 id="resourceTitle">Book Resource</h3>
+    <label>Date</label>
+    <input type="date" id="date">
+    <label>Time Slot</label>
+    <select id="time">
+      <option value="">Select</option>
+      <option value="9-10">9:00 - 10:00</option>
+      <option value="10-11">10:00 - 11:00</option>
+      <option value="11-12">11:00 - 12:00</option>
+    </select>
+    <button onclick="confirmBooking()">Confirm Booking</button>
+    <p id="msg"></p>
+  </div>
+
+  <h3 class="section-title">Booking History</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Resource</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>User</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="history"></tbody>
+  </table>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
