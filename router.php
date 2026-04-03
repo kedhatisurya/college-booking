@@ -26,15 +26,13 @@ if ($path !== '/' && $ext !== 'php' && file_exists($staticFile) && !is_dir($stat
 }
 
 // Route pages
-if ($path === '/' || $path === '/index') {
-    include 'login.html';
-} elseif ($path === '/login') {
+if ($path === '/' || $path === '/login') {
     include 'login.html';
 } elseif ($path === '/home') {
-    include 'index.html';
+    include 'index.html'; // ✅ dashboard
 } elseif ($path === '/signup') {
     include 'signup.html';
-} elseif ($path === '/login.php' || $path === '/login_user.php') {
+} elseif ($path === '/login_user.php') {
     include 'login_user.php';
 } elseif ($path === '/insert_user.php') {
     include 'insert_user.php';

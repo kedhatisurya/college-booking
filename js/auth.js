@@ -75,7 +75,7 @@ function login() {
   // Admin shortcut (no DB call needed)
   if (email === ADMIN.email && password === ADMIN.password) {
     localStorage.setItem("loggedInUser", JSON.stringify(ADMIN));
-    window.location.href = "/";  // ✅ was /home
+    window.location.href = "/home"; // ✅ goes to index.html
     return;
   }
   fetch(`${BASE_URL}/login_user.php`, {
@@ -87,7 +87,7 @@ function login() {
   .then(data => {
     if (data.success) {
       localStorage.setItem("loggedInUser", JSON.stringify(data.user));
-      window.location.href = "/";  // ✅ was /home
+      window.location.href = "/home"; // ✅ goes to index.html
     } else {
       msg.innerText = data.message || "Invalid email or password";
     }
