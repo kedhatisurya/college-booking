@@ -3,28 +3,26 @@ const BASE_URL = window.location.origin;
 
 // 🔐 HARDCODED ADMIN CREDENTIALS (frontend check only)
 const ADMIN = {
-  email: "admin@bvrit.ac.in",
+  email:    "admin@bvrit.ac.in",
   password: "Admin@123",
-  role: "admin"
+  role:     "admin"
 };
 
 // ========== SIGNUP ==========
 function signup() {
-  const email     = document.getElementById("signupEmail").value.trim();
-  const password  = document.getElementById("signupPassword").value;
-  const role      = document.getElementById("signupRole").value;
-  const errorBox  = document.getElementById("signupErrors");
+  const email    = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const role     = document.getElementById("signupRole").value;
+  const errorBox = document.getElementById("signupErrors");
 
   errorBox.style.color = "red";
   errorBox.innerHTML   = "";
+
   let errors = [];
 
-  // Email domain check
   if (!email.endsWith("@bvrit.ac.in")) {
     errors.push("Email must end with @bvrit.ac.in");
   }
-
-  // Password rules
   if (password.length < 9)
     errors.push("Password must be at least 9 characters long");
   if (!/[a-z]/.test(password))
@@ -40,7 +38,6 @@ function signup() {
   if (namePart.length >= 3 && password.toLowerCase().includes(namePart.toLowerCase())) {
     errors.push("Password should not contain your email name");
   }
-
   if (!role) {
     errors.push("Please select a role");
   }
@@ -55,16 +52,16 @@ function signup() {
   }
 
   fetch(`${BASE_URL}/insert_user.php`, {
-    method: "POST",
+    method:  "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, role })
+    body:    JSON.stringify({ email, password, role })
   })
   .then(res => res.json())
   .then(data => {
     if (data.message === "User stored") {
       errorBox.style.color = "green";
       errorBox.innerText   = "Signup successful! Redirecting to login...";
-      setTimeout(() => window.location.href = "login.html", 1500);
+      setTimeout(() => window.location.href = "/login", 1500); // ✅ fixed
     } else {
       errorBox.style.color = "red";
       errorBox.innerText   = data.message || "Signup failed. Try again.";
@@ -93,20 +90,20 @@ function login() {
   // Admin shortcut (no DB call needed)
   if (email === ADMIN.email && password === ADMIN.password) {
     localStorage.setItem("loggedInUser", JSON.stringify(ADMIN));
-    window.location.href = "index.html";
+    window.location.href = "/home"; // ✅ fixed
     return;
   }
 
   fetch(`${BASE_URL}/login_user.php`, {
-    method: "POST",
+    method:  "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+    body:    JSON.stringify({ email, password })
   })
   .then(res => res.json())
   .then(data => {
     if (data.success) {
       localStorage.setItem("loggedInUser", JSON.stringify(data.user));
-      window.location.href = "index.html";
+      window.location.href = "/home"; // ✅ fixed
     } else {
       msg.innerText = data.message || "Invalid email or password";
     }

@@ -31,6 +31,12 @@ if ($path === '/' || $path === '/index') {
     include 'login.html';
 } elseif ($path === '/home') {
     include 'home.html';
+} elseif ($path === '/signup') {
+    include 'signup.html';
+} elseif ($path === '/login.php' || $path === '/login_user.php') {
+    include 'login.php';
+} elseif ($path === '/insert_user.php') {
+    include 'insert_user.php';
 } elseif ($path === '/insert_booking.php') {
     include 'insert_booking.php';
 } elseif ($path === '/get_bookings.php') {
