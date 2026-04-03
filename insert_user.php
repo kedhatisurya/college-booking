@@ -2,7 +2,6 @@
 include 'db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
-
 if (!$data) {
     echo json_encode(["message" => "No data received"]);
     exit;
@@ -10,10 +9,16 @@ if (!$data) {
 
 $email    = $data['email']    ?? '';
 $password = $data['password'] ?? '';
-$role     = $data['role']     ?? '';
+$role     = 'faculty'; // always faculty, no matter what is sent
 
-if (!$email || !$password || !$role) {
+if (!$email || !$password) {
     echo json_encode(["message" => "Missing fields"]);
+    exit;
+}
+
+// Block admin email from signing up
+if ($email === 'admin@bvrit.ac.in') {
+    echo json_encode(["message" => "This email cannot be registered"]);
     exit;
 }
 
@@ -26,7 +31,6 @@ if ($check->fetch()) {
 
 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 $stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
-
 if ($stmt->execute([$email, $hashedPassword, $role])) {
     echo json_encode(["message" => "User stored"]);
 } else {
