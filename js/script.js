@@ -1,14 +1,12 @@
 const BASE_URL = window.location.origin;
 
-// Auth check
 const user = JSON.parse(localStorage.getItem("loggedInUser"));
-if (!user) window.location.href = "login.html";
+if (!user) window.location.href = "/login";
 
 document.getElementById("userInfo").innerText = user.email + " (" + user.role + ")";
 
-// Show admin filters
 if (user.role === "admin") {
-  document.getElementById("adminFilters").style.display  = "flex";
+  document.getElementById("adminFilters").style.display   = "flex";
   document.getElementById("conflictLegend").style.display = "flex";
   document.getElementById("historyTitle").innerText = "All Booking Requests";
 }
@@ -19,20 +17,16 @@ let selectedResource = "";
 // ========== LOGOUT ==========
 function logout() {
   localStorage.removeItem("loggedInUser");
-  window.location.href = "login.html";
+  window.location.href = "/login";
 }
 
 // ========== OPEN BOOKING ==========
 function openBooking(resource) {
-  if (user.role === "admin") {
-    alert("Admin cannot book resources.");
-    return;
-  }
+  if (user.role === "admin") { alert("Admin cannot book resources."); return; }
   selectedResource = resource;
   document.getElementById("bookingPanel").style.display = "block";
   document.getElementById("resourceTitle").innerText    = "Book " + resource;
   document.getElementById("msg").innerText              = "";
-  // Set min date to today
   document.getElementById("date").min = new Date().toISOString().split("T")[0];
 }
 
@@ -44,48 +38,34 @@ function confirmBooking() {
   const today = new Date().toISOString().split("T")[0];
 
   if (!date || !time) {
-    msg.style.color = "red";
-    msg.innerText   = "Please select date and time";
-    return;
+    msg.style.color = "red"; msg.innerText = "Please select date and time"; return;
   }
   if (date < today) {
-    msg.style.color = "red";
-    msg.innerText   = "You cannot book for past dates";
-    return;
+    msg.style.color = "red"; msg.innerText = "You cannot book for past dates"; return;
   }
 
   fetch(`${BASE_URL}/insert_booking.php`, {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ resource: selectedResource, date, time, status: "Pending", user: user.email })
+    body:    JSON.stringify({ resource: selectedResource, date, time, user: user.email })
   })
   .then(res => res.json())
   .then(data => {
-    if (data.message === "Booking request submitted successfully!") {
-      msg.style.color = "green";
-    } else {
-      msg.style.color = "red";
-    }
-    msg.innerText = data.message;
+    msg.style.color = data.message === "Booking request submitted successfully!" ? "green" : "red";
+    msg.innerText   = data.message;
     loadHistory();
   })
-  .catch(() => {
-    msg.style.color = "red";
-    msg.innerText   = "Error saving booking. Try again.";
-  });
+  .catch(() => { msg.style.color = "red"; msg.innerText = "Error saving booking. Try again."; });
 }
 
 // ========== LOAD HISTORY ==========
 function loadHistory() {
   fetch(`${BASE_URL}/get_bookings.php`)
   .then(res => res.json())
-  .then(data => {
-    allBookings = data;
-    filterTable();
-  });
+  .then(data => { allBookings = data; filterTable(); });
 }
 
-// ========== FILTER TABLE (admin) ==========
+// ========== FILTER TABLE ==========
 function filterTable() {
   let filtered = [...allBookings];
 
@@ -99,48 +79,17 @@ function filterTable() {
   const statusFilter   = document.getElementById("filterStatus")?.value   || "";
   const conflictFilter = document.getElementById("filterConflict")?.value || "";
 
-  if (resFilter)    filtered = filtered.filter(b => b.resource === resFilter);
-  if (statusFilter) filtered = filtered.filter(b => b.status   === statusFilter);
+  if (resFilter)                  filtered = filtered.filter(b => b.resource === resFilter);
+  if (statusFilter)               filtered = filtered.filter(b => b.status   === statusFilter);
+  if (conflictFilter === "conflict") filtered = filtered.filter(b => b.is_conflict == 1);
 
-  // Find conflicting slot IDs
-  const conflictIds = getConflictIds(allBookings);
-
-  if (conflictFilter === "conflict") {
-    filtered = filtered.filter(b => conflictIds.has(String(b.id)));
-  }
-
-  // Sort: pending first, then by created_at
-  filtered.sort((a, b) => {
-    if (a.status === "Pending" && b.status !== "Pending") return -1;
-    if (a.status !== "Pending" && b.status === "Pending") return 1;
-    return new Date(a.created_at) - new Date(b.created_at);
-  });
-
-  renderTable(filtered, conflictIds);
-}
-
-// ========== DETECT CONFLICTS ==========
-function getConflictIds(bookings) {
-  const slotMap  = {};
-  const conflicts = new Set();
-
-  bookings.forEach(b => {
-    if (b.status === "Rejected") return;
-    const key = `${b.resource}|${b.date}|${b.time}`;
-    if (!slotMap[key]) slotMap[key] = [];
-    slotMap[key].push(String(b.id));
-  });
-
-  Object.values(slotMap).forEach(ids => {
-    if (ids.length > 1) ids.forEach(id => conflicts.add(id));
-  });
-
-  return conflicts;
+  renderTable(filtered);
 }
 
 // ========== RENDER TABLE ==========
-function renderTable(bookings, conflictIds = new Set()) {
-  const tbody = document.getElementById("history");
+function renderTable(bookings) {
+  const tbody  = document.getElementById("history");
+  const header = document.getElementById("tableHeader");
   tbody.innerHTML = "";
 
   if (bookings.length === 0) {
@@ -149,17 +98,21 @@ function renderTable(bookings, conflictIds = new Set()) {
   }
 
   if (user.role === "admin") {
+    // Admin header: Resource | Date | Time | User | Status | Action
+    header.innerHTML = `
+      <th>Resource</th><th>Date</th><th>Time</th>
+      <th>User</th><th>Status</th><th>Action</th>
+    `;
     bookings.forEach(b => {
-      const isConflict = conflictIds.has(String(b.id));
-      const conflictBadge = isConflict ? `<span class="conflict-badge">⚠ CONFLICT</span>` : "";
-      const rowClass = isConflict ? "conflict-row" : "";
-
+      const isConflict  = b.is_conflict == 1;
+      const rowClass    = isConflict ? "conflict-row" : "";
+      const badge       = isConflict ? `<span class="conflict-badge">⚠ CONFLICT</span>` : "";
       tbody.innerHTML += `
         <tr class="${rowClass}">
           <td>${b.resource}</td>
           <td>${b.date}</td>
           <td>${formatTime(b.time)}</td>
-          <td>${b.user_email} ${conflictBadge}</td>
+          <td>${b.user_email} ${badge}</td>
           <td style="color:${statusColor(b.status)};font-weight:bold">${b.status}</td>
           <td>
             ${b.status === "Pending" ? `
@@ -167,25 +120,88 @@ function renderTable(bookings, conflictIds = new Set()) {
               <button class="btn-reject"  onclick="rejectBooking(${b.id})">✘ Reject</button>
             ` : "-"}
           </td>
-        </tr>
-      `;
+        </tr>`;
     });
   } else {
+    // User header: Resource | Date | Time | Status (no User, no Action)
+    header.innerHTML = `
+      <th>Resource</th><th>Date</th><th>Time</th><th>Status</th>
+    `;
     bookings.forEach(b => {
       tbody.innerHTML += `
         <tr>
           <td>${b.resource}</td>
           <td>${b.date}</td>
           <td>${formatTime(b.time)}</td>
-          <td>${b.user_email}</td>
           <td style="color:${statusColor(b.status)};font-weight:bold">${b.status}</td>
-          <td>
-            ${b.status === "Pending" ? `<button class="btn-delete" onclick="deleteBooking(${b.id})">Cancel</button>` : "-"}
-          </td>
-        </tr>
-      `;
+        </tr>`;
     });
   }
+}
+
+// ========== APPROVE ==========
+function approveBooking(id) {
+  const booking = allBookings.find(b => b.id == id);
+  if (!booking) return;
+
+  updateStatus(id, "Approved").then(() => {
+    // Auto-reject all other pending bookings for same slot
+    const others = allBookings.filter(b =>
+      b.id != id &&
+      b.resource === booking.resource &&
+      b.date     === booking.date &&
+      b.time     === booking.time &&
+      b.status   === "Pending"
+    );
+    Promise.all(others.map(b => updateStatus(b.id, "Rejected")))
+      .then(() => loadHistory());
+  });
+}
+
+function rejectBooking(id) {
+  updateStatus(id, "Rejected").then(() => {
+    // If no more conflicts for that slot, clear is_conflict on remaining pending
+    const booking = allBookings.find(b => b.id == id);
+    if (booking) {
+      const remaining = allBookings.filter(b =>
+        b.id != id &&
+        b.resource === booking.resource &&
+        b.date     === booking.date &&
+        b.time     === booking.time &&
+        b.status   === "Pending"
+      );
+      if (remaining.length === 1) {
+        // Only one left — no longer a conflict
+        clearConflict(remaining[0].id);
+      }
+    }
+    loadHistory();
+  });
+}
+
+function updateStatus(id, status) {
+  return fetch(`${BASE_URL}/update_booking.php`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ id, status })
+  });
+}
+
+function clearConflict(id) {
+  fetch(`${BASE_URL}/update_booking.php`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ id, clear_conflict: true })
+  });
+}
+
+function deleteBooking(id) {
+  if (!confirm("Cancel this booking request?")) return;
+  fetch(`${BASE_URL}/delete-booking.php`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ id })
+  }).then(() => loadHistory());
 }
 
 // ========== HELPERS ==========
@@ -204,45 +220,4 @@ function statusColor(status) {
   return "orange";
 }
 
-// ========== APPROVE / REJECT / DELETE ==========
-function approveBooking(id) {
-  const booking = allBookings.find(b => b.id == id);
-  if (!booking) return;
-
-  updateStatus(id, "Approved").then(() => {
-    allBookings.forEach(b => {
-      if (b.id != id &&
-          b.resource === booking.resource &&
-          b.date === booking.date &&
-          b.time === booking.time &&
-          b.status === "Pending") {
-        updateStatus(b.id, "Rejected");
-      }
-    });
-    loadHistory();
-  });
-}
-
-function rejectBooking(id) {
-  updateStatus(id, "Rejected").then(() => loadHistory());
-}
-
-function updateStatus(id, status) {
-  return fetch(`${BASE_URL}/update_booking.php`, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ id, status })
-  });
-}
-
-function deleteBooking(id) {
-  if (!confirm("Cancel this booking request?")) return;
-  fetch(`${BASE_URL}/delete-booking.php`, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ id })
-  }).then(() => loadHistory());
-}
-
-// ========== INIT ==========
 loadHistory();
