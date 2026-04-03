@@ -29,9 +29,8 @@ if ($path === '/' || $path === '/index') {
     include 'login.html';
 } elseif ($path === '/login') {
     include 'login.html';
-} elseif ($path === '/home') {
-    include 'home.html';
-} elseif ($path === '/signup') {
+} 
+elseif ($path === '/signup') {
     include 'signup.html';
 } elseif ($path === '/login.php' || $path === '/login_user.php') {
     include 'login.php';
